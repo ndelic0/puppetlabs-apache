@@ -534,7 +534,7 @@ class apache (
   Array[Enum['h2', 'h2c', 'http/1.1']] $protocols                            = [],
   Optional[Boolean] $protocols_honor_order                                   = undef,
   Boolean $manage_conf                                                       = false,
-  Boolean $skip_default_modes                                                = true,
+  Boolean $skip_default_mods                                                 = true,
 ) inherits apache::params {
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '7' {
     # On RedHat 7 the ssl.conf lives in /etc/httpd/conf.d (the confd_dir)
