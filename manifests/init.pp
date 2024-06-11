@@ -534,6 +534,7 @@ class apache (
   Array[Enum['h2', 'h2c', 'http/1.1']] $protocols                            = [],
   Optional[Boolean] $protocols_honor_order                                   = undef,
   Boolean $manage_conf                                                       = false,
+  Boolean $skip_default_modes                                                = true,
 ) inherits apache::params {
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '7' {
     # On RedHat 7 the ssl.conf lives in /etc/httpd/conf.d (the confd_dir)
@@ -820,14 +821,16 @@ class apache (
 
     # preserve back-wards compatibility to the times when default_mods was
     # only a boolean value. Now it can be an array (too)
-    if $default_mods =~ Array {
-      class { 'apache::default_mods':
-        all  => false,
-        mods => $default_mods,
-      }
-    } else {
-      class { 'apache::default_mods':
-        all => $default_mods,
+    if !$skip_default_mods {
+      if $default_mods =~ Array {
+        class { 'apache::default_mods':
+          all  => false,
+          mods => $default_mods,
+        }
+      } else {
+        class { 'apache::default_mods':
+          all => $default_mods,
+        }
       }
     }
     class { 'apache::default_confd_files':
