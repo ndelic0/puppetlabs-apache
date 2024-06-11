@@ -533,6 +533,7 @@ class apache (
   String $access_log_file                                                    = $apache::params::access_log_file,
   Array[Enum['h2', 'h2c', 'http/1.1']] $protocols                            = [],
   Optional[Boolean] $protocols_honor_order                                   = undef,
+  Boolean $manage_conf                                                       = false,
 ) inherits apache::params {
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '7' {
     # On RedHat 7 the ssl.conf lives in /etc/httpd/conf.d (the confd_dir)
@@ -807,13 +808,14 @@ class apache (
       'error_documents'         => $error_documents,
       'error_documents_path'    => $error_documents_path,
     }
-
-    file { "${apache::conf_dir}/${apache::params::conf_file}":
-      ensure  => file,
-      mode    => $apache::file_mode,
-      content => epp($conf_template, $parameters),
-      notify  => Class['Apache::Service'],
-      require => [Package['httpd'], Concat[$ports_file]],
+    if $manage_conf {
+      file { "${apache::conf_dir}/${apache::params::conf_file}":
+        ensure  => file,
+        mode    => $apache::file_mode,
+        content => epp($conf_template, $parameters),
+        notify  => Class['Apache::Service'],
+        require => [Package['httpd'], Concat[$ports_file]],
+      }
     }
 
     # preserve back-wards compatibility to the times when default_mods was
